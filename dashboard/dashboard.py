@@ -41,7 +41,7 @@ def create_rfm_df(df):
     
     return rfm_df
 
-all_df = pd.read_csv("all_data.csv")
+all_df = pd.read_csv("dashboard/all_data.csv")
 
 datetime_columns = ["dteday_x"]
 all_df.sort_values(by="dteday_x", inplace=True)
@@ -57,13 +57,22 @@ with st.sidebar:
     # Menambahkan logo perusahaan
     st.image("https://github.com/dicodingacademy/assets/raw/main/logo.png")
     
-    # Mengambil start_date & end_date dari date_input
-    start_date, end_date = st.date_input(
-        label='Rentang Waktu',min_value=min_date,
-        max_value=max_date,
-        value=[min_date, max_date]
-    )
+    # Mengambil start_date & end_date dari date_input dengan try-except
+    try:
+        start_date, end_date = st.date_input(
+            label='Rentang Waktu',
+            min_value=min_date,
+            max_value=max_date,
+            value=[min_date, max_date]
+        )
+        # Validasi jika pengguna tidak menginputkan tanggal
+        if not start_date or not end_date:
+            raise ValueError("Tanggal tidak valid")
+    except ValueError as e:
+        st.warning(f"Error dalam memilih rentang waktu: {e}")
+        start_date, end_date = min_date, max_date
 
+# Filter data berdasarkan input start_date dan end_date
 main_df = all_df[(all_df["dteday_x"] >= str(start_date)) & 
                 (all_df["dteday_x"] <= str(end_date))]
 
